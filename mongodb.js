@@ -1,3 +1,4 @@
+// $ git push -u origin main
 const mongodb = require('mongodb')
 const MongoClient = mongodb.MongoClient
 
@@ -11,8 +12,19 @@ MongoClient.connect(connectionURL,{ useNewUrlParser:true } , (error,client) =>{
     }
     const db = client.db(databaseName)
     
-    db.collection('users').insertOne({
-        name:'Marwan' ,
-        age:23
+    db.collection('Tasks').insertMany([{
+        description:'' ,
+        completed:false 
+    },{
+        description:'' ,
+        completed:false     
+    },{
+        description:'' ,
+        completed:false 
+    }],(error,result) =>{
+        if (error){
+            return console.log('Unable To insert Documents')
+        } 
+        // console.log(result)
     })
 })
