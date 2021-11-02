@@ -12,22 +12,27 @@ MongoClient.connect(connectionURL,{ useNewUrlParser:true } , (error,client) =>{
     }
     const db = client.db(databaseName)
     
-    // finding one element (task with description equals Play Chess)
-    db.collection('Tasks').findOne({ description:'Play Chess'} , (error,task) =>{
-        if (error) {
-            return console.log("Unable to find task")
+    // updating the db using promises and update one
+    db.collection('Tasks').updateOne( { description : 'Play Tennis' } ,
+    {
+        $set: {
+            description:'Do Some Shit'
         }
-
-        console.log(task)
+    }).then((data) =>{
+        console.log(data)
+    }).catch((error) =>{
+        console.log(error)
     })
 
-    // finding all tasks with completed property equal true
-    db.collection('Tasks').find({completed : false}).toArray((error,tasks) =>{
-        console.log(tasks)
+    // updating the db using promises and update many
+    db.collection('Tasks').updateMany( { completed:false } , {
+        $set: {
+            completed:true
+        }
+    }).then((data) =>{
+        console.log(data)
+    }).catch((error) =>{
+        console.log(error)
     })
 
-    // getting the document count of documents with false completed property
-    db.collection('Tasks').find({completed : false}).count((error,count) =>{
-        console.log(count)
-    })
 })
