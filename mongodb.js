@@ -12,24 +12,8 @@ MongoClient.connect(connectionURL,{ useNewUrlParser:true } , (error,client) =>{
     }
     const db = client.db(databaseName)
     
-    // updating the db using promises and update one
-    db.collection('Tasks').updateOne( { description : 'Play Tennis' } ,
-    {
-        $set: {
-            description:'Do Some Shit'
-        }
-    }).then((data) =>{
-        console.log(data)
-    }).catch((error) =>{
-        console.log(error)
-    })
-
-    // updating the db using promises and update many
-    db.collection('Tasks').updateMany( { completed:false } , {
-        $set: {
-            completed:true
-        }
-    }).then((data) =>{
+    // deleting a document from db using promises and delete one
+    db.collection('Tasks').deleteOne( { description : "Complete node course" } ).then((data) =>{
         console.log(data)
     }).catch((error) =>{
         console.log(error)
