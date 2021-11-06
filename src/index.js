@@ -61,9 +61,27 @@ app.patch('/users/:id' , async (req,res) =>{
         const user = await User.findByIdAndUpdate( _id , data , { new:true , runValidators:true })
         res.status(201).send(user)
     } catch (error) {
+        res.status(404).send(error)
+    }
+})
+
+// deleting user by id
+app.delete('/users/:id' , async (req,res) =>{
+    const _id = req.params.id
+
+    try {
+        const user = await User.deleteOne({ id:_id })
+        
+        if (!user.deletedCount) {
+            return res.status(404).send("Cannot find a user with this id")
+        }
+        res.status(201).send("User deleted successfully")
+    } catch (error) {
         res.status(400).send(error)
     }
 })
+
+/******************************************************************************************************/
 
 // creating a new task
 app.post('/tasks' , async (req,res) =>{
@@ -108,7 +126,7 @@ app.patch('/tasks/:id' , async (req,res) =>{
     const isValidUpdate = updates.every( (update) => allowedUpdates.includes(update) )
     
     if (!isValidUpdate){
-        return res.status(400).send("No document found with these properties")
+        return res.status(404).send("No document found with these properties")
     }
 
     const _id = req.params.id 
@@ -119,6 +137,22 @@ app.patch('/tasks/:id' , async (req,res) =>{
         res.status(201).send(task)    
     } catch (error) {
         console.log(error)
+        res.status(400).send(error)
+    }
+})
+
+// deleting task by id 
+app.delete('/tasks/:id' , async (req,res) =>{
+    const _id = req.params.id
+
+    try {
+        const task = await Task.deleteOne({ id:_id })
+        
+        if (!task.deletedCount) {
+            return res.status(404).send("Cannot find a task with this id")
+        }
+        res.status(201).send("Task deleted successfully")
+    } catch (error) {
         res.status(400).send(error)
     }
 })
