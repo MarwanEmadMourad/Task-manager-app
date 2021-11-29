@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     },
     email:{
         type: String,
+        unique:true,
         required: true,
         trim: true,
         lowerCase: true,
@@ -41,7 +42,20 @@ const userSchema = new mongoose.Schema({
     }
 })
 
-// function that runs pre saving a document operation
+// customizing our own finction on the User model to authenticate a user 
+userSchema.statics.findByCredetials = async (email,password) =>{
+    const user = await User.findOne({ email })
+    if (!user){
+        throw new Error ("Unable to login")
+    }
+    const validLogin = await bcrypt.compare(password,user.password)  
+    if (!validLogin){
+        throw new Error ("Email or password is incorrect")
+    } 
+    return user
+}
+
+// Hash any password before saving it 
 userSchema.pre('save' , async function (next) {
     const user = this 
     // checking if the password property on user is being changed(created or updated) then we want to hash it

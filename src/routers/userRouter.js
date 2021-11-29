@@ -15,6 +15,16 @@ router.post('/users' , async (req,res) =>{
     }
 })
 
+// login route
+router.post('/users/login' , async (req,res) =>{
+    try {
+        const user = await User.findByCredetials(req.body.email , req.body.password) 
+        res.send(user)
+    } catch(error){
+        res.status(400).send(error.message)
+    }
+})
+
 // reading all users
 router.get('/users', async (req,res) =>{
     
@@ -58,7 +68,7 @@ router.patch('/users/:id' , async (req,res) =>{
         // since a single update is a stirng we use [] to access user properties 
         updates.forEach((update) => user[update] = req.body[update] )
         await user.save()
-        
+
         res.status(201).send(user)
     } catch (error) {
         res.status(404).send('User Not Found')
