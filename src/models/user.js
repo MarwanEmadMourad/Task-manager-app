@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const bcrypt = require ('bcrypt')
 
-// creating user model 
-const User = mongoose.model('User', {
+// User Schema
+const userSchema = new mongoose.Schema({
     name: {
         type:String,
         trim: true
@@ -39,5 +40,18 @@ const User = mongoose.model('User', {
         }
     }
 })
+
+// function that runs pre saving a document operation
+userSchema.pre('save' , async function (next) {
+    const user = this 
+    // checking if the password property on user is being changed(created or updated) then we want to hash it
+    if (user.isModified('password')) {
+            user.password = await bcrypt.hash(user.password,8)
+    }
+    next()
+})
+
+// creating user model 
+const User = mongoose.model('User',userSchema)
 
 module.exports = User

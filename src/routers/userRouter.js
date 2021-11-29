@@ -52,12 +52,16 @@ router.patch('/users/:id' , async (req,res) =>{
     }
 
     const _id = req.params.id 
-    const data = req.body
     try {
-        const user = await User.findByIdAndUpdate( _id , data , { new:true , runValidators:true })
+        const user = await User.findById( _id)
+
+        // since a single update is a stirng we use [] to access user properties 
+        updates.forEach((update) => user[update] = req.body[update] )
+        await user.save()
+        
         res.status(201).send(user)
     } catch (error) {
-        res.status(404).send(error)
+        res.status(404).send('User Not Found')
     }
 })
 
