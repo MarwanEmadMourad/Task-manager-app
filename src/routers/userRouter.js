@@ -28,12 +28,25 @@ router.post('/users/login' , async (req,res) =>{
     }
 })
 
-//(Private) reading a specific user's info 
+//(Private) logout route
+router.post('/users/logout' , auth , async (req,res) =>{
+    try {
+        req.user.tokens = req.user.tokens.filter((token)=>{
+            return token.token !== req.token
+        }) 
+        await req.user.save()
+        res.send()
+    } catch(error){
+      res.status(500).send()
+    }
+})
+
+//(Private) reading a specific user's profile 
 router.get('/users/me', auth , async (req,res) => {
     res.status(200).send(req.user)
 })
 
-// reading a user by id
+//(Private) reading a user by id
 router.get("/users/:id", async (req,res) => {
     const _id = req.params.id 
 
@@ -45,8 +58,8 @@ router.get("/users/:id", async (req,res) => {
     }
 })
 
-// updating a user by id
-router.patch('/users/:id' , async (req,res) =>{
+//(Private) updating a user by id
+router.patch('/users/:id' ,auth, async (req,res) =>{
     
     // checking if it's allowed to update the incoming properties
     const updates = Object.keys(req.body)
@@ -66,14 +79,14 @@ router.patch('/users/:id' , async (req,res) =>{
         updates.forEach((update) => user[update] = req.body[update] )
         await user.save()
 
-        res.status(201).send(user)
+        res.status(200).send(user)
     } catch (error) {
         res.status(404).send('User Not Found')
     }
 })
 
-// deleting user by id
-router.delete('/users/:id' , async (req,res) =>{
+//(Private) deleting user by id
+router.delete('/users/:id' , auth ,async (req,res) =>{
     const _id = req.params.id
 
     try {
@@ -82,7 +95,7 @@ router.delete('/users/:id' , async (req,res) =>{
         if (!user.deletedCount) {
             return res.status(404).send("Cannot find a user with this id")
         }
-        res.status(201).send("User deleted successfully")
+        res.status(200).send("User deleted successfully")
     } catch (error) {
         res.status(400).send(error)
     }

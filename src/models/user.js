@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
     }] 
 })
 
-// generating an auth token ti each individual user
+// generating an auth token to each individual user
 userSchema.methods.generateAuthToken = async function () {
     const user = this 
     const token = jwt.sign({ id : user._id.toString() } , "haytherebaby")
@@ -61,7 +61,7 @@ userSchema.methods.generateAuthToken = async function () {
 }
 
 
-// customizing our own finction on the User model to authenticate a user 
+// customizing our own function on the User model to authenticate a user 
 userSchema.statics.findByCredetials = async (email,password) => {
     const user = await User.findOne({ email })
     if (!user){

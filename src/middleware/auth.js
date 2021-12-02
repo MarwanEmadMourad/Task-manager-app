@@ -13,6 +13,8 @@ const auth = async (req,res,next) => {
         if (!user){
             throw new Error () 
         }
+        // passing the token to any router to use it afterwards
+        req.token = token 
         // since we reached here means we have a matched user and we will pass it to the router
         req.user = user 
         next()  
