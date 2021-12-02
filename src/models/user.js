@@ -60,6 +60,16 @@ userSchema.methods.generateAuthToken = async function () {
     return token
 }
 
+// getting public user data
+userSchema.methods.getPublicUser = function () {
+    const user = this 
+    return {
+        name : user.name ,
+        email: user.email ,
+        age: user.age
+    }
+}
+
 
 // customizing our own function on the User model to authenticate a user 
 userSchema.statics.findByCredetials = async (email,password) => {

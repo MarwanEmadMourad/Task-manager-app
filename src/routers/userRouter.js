@@ -11,7 +11,7 @@ router.post('/users' , async (req,res) =>{
     try {
         await user.save()
         const token = await user.generateAuthToken()   
-        res.send( {user , token} )    
+        res.send( { user: user.getPublicUser() , token} )    
     } catch(error){
         res.status(400).send(error)
     }
@@ -22,7 +22,7 @@ router.post('/users/login' , async (req,res) =>{
     try {
         const user = await User.findByCredetials(req.body.email , req.body.password)
         const token = await user.generateAuthToken()  
-        res.send( {user , token} )
+        res.send( {user: user.getPublicUser() , token} )
     } catch(error){
         res.status(400).send(error.message)
     }
@@ -34,6 +34,17 @@ router.post('/users/logout' , auth , async (req,res) =>{
         req.user.tokens = req.user.tokens.filter((token)=>{
             return token.token !== req.token
         }) 
+        await req.user.save()
+        res.send()
+    } catch(error){
+      res.status(500).send()
+    }
+})
+
+//(Private) logout from all sessions
+router.post('/users/logout-all' , auth , async (req,res) =>{
+    try {
+        req.user.tokens = []
         await req.user.save()
         res.send()
     } catch(error){
