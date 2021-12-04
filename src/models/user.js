@@ -49,6 +49,14 @@ const userSchema = new mongoose.Schema({
     }] 
 })
 
+// virtual tasks property that will hold the tasks created by each user
+// it's the same as joining two tables to get all tasks created by a user
+userSchema.virtual('tasks' , {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'owner'
+})
+
 // generating an auth token to each individual user
 userSchema.methods.generateAuthToken = async function () {
     const user = this 
