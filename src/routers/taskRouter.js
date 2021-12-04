@@ -20,29 +20,32 @@ router.post('/tasks' , auth ,async (req,res) =>{
     }
 })
 
-// reading all tasks
-router.get('/tasks',async  (req,res) =>{
+// reading all the account tasks
+router.get('/tasks', auth ,async  (req,res) =>{
     try {
-        const tasks = await Task.find({})
+        const tasks = await Task.find({creator: req.user._id})
         res.send(tasks)
+    } catch (error) {
+        res.status(500).send(error.message)
+    }
+})
+
+// reading a task for a single user by it's id
+router.get('/tasks/:id' , auth ,async  (req,res) =>{
+    const _id = req.params.id 
+    try {
+        const task = await Task.findOne({ _id , creator:req.user._id })
+        if (!task){
+            res.status(404).send()    
+        } 
+        res.status(201).send(task)
     } catch (error) {
         res.status(500).send()
     }
 })
 
-// reading a task by it's id
-router.get('/tasks/:id' ,async  (req,res) =>{
-    const _id = req.params.id 
-    try {
-        const task = await Task.findById(_id) 
-        res.status(201).send()
-    } catch (error) {
-        res.status(404).send("cannot find the task")
-    }
-})
-
 // updating task by id 
-router.patch('/tasks/:id' , async (req,res) =>{
+router.patch('/tasks/:id' , auth , async (req,res) =>{
 
     // checking if it's allowed to update the incoming properties
     const updates = Object.keys(req.body)
@@ -53,29 +56,25 @@ router.patch('/tasks/:id' , async (req,res) =>{
     if (!isValidUpdate){
         return res.status(404).send("No document found with these properties")
     }
-
-    const _id = req.params.id 
-    const data = req.body
-
+    
     try {
-        const task = await Task.findByIdAndUpdate(_id,data,{ new:true , runValidators:true}) 
+        const task = await Task.findOne({_id: req.params.id , creator: req.user._id})
+        updates.forEach((update) => task[update] = req.body[update] ) 
+        await task.save()
+
         res.status(201).send(task)    
     } catch (error) {
-        console.log(error)
-        res.status(400).send(error)
+        res.status(404).send(error)
     }
 })
 
 // deleting task by id 
-router.delete('/tasks/:id' , async (req,res) =>{
+router.delete('/tasks/:id' ,auth, async (req,res) =>{
     const _id = req.params.id
 
     try {
-        const task = await Task.deleteOne({ id:_id })
-        
-        if (!task.deletedCount) {
-            return res.status(404).send("Cannot find a task with this id")
-        }
+        const task = await Task.findOne({ id:_id , creator: req.user._id })
+        await task.remove()
         res.status(201).send("Task deleted successfully")
     } catch (error) {
         res.status(400).send(error)
