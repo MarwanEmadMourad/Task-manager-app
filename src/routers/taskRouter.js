@@ -22,8 +22,13 @@ router.post('/tasks' , auth ,async (req,res) =>{
 
 // reading all the account tasks
 router.get('/tasks', auth ,async  (req,res) =>{
+    const match = {
+        creator: req.user._id 
+    }
+    if (req.query.completed)
+        match.completed = (req.query.completed === 'true')
     try {
-        const tasks = await Task.find({creator: req.user._id})
+        const tasks = await Task.find(match)
         res.send(tasks)
     } catch (error) {
         res.status(500).send(error.message)
