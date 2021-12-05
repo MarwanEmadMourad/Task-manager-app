@@ -48,6 +48,8 @@ const userSchema = new mongoose.Schema({
             required: true
         }
     }] 
+} , {
+    timestamps: true
 })
 
 // virtual tasks property that will hold the tasks created by each user
