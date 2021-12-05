@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-// const validator = require('validator')
 
 // defining task schema
 const taskSchema = new mongoose.Schema({

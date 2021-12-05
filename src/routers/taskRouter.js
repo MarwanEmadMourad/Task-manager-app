@@ -1,5 +1,7 @@
 const express = require('express')
 const Task = require('../models/task')
+const User = require('../models/user')
+
 const auth = require('../middleware/auth')
 
 const router = new express.Router()
@@ -21,15 +23,22 @@ router.post('/tasks' , auth ,async (req,res) =>{
 })
 
 // reading all the account tasks
+// filtering based on completed property
+// can paginate using limit and skip query strings
 router.get('/tasks', auth ,async  (req,res) =>{
-    const match = {
-        creator: req.user._id 
-    }
+    const match = {}
     if (req.query.completed)
         match.completed = (req.query.completed === 'true')
     try {
-        const tasks = await Task.find(match)
-        res.send(tasks)
+        await req.user.populate({
+            path: 'tasks',
+            match,
+            options:{
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip)
+            }
+        })
+        res.send(req.user.tasks)
     } catch (error) {
         res.status(500).send(error.message)
     }
