@@ -1,7 +1,8 @@
 const express = require('express')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
-const multer = require('multer')
+const upload = require('../middleware/multer')
+
 
 const router = new express.Router()
 
@@ -29,24 +30,13 @@ router.post('/users/login' , async (req,res) =>{
     }
 })
 
-const upload = multer({
-    dest:'avatars',
-    limits:{
-        fileSize:1000000
-    },
-    fileFilter(req,file,cb) {
-        if (! file.originalname.match(/\.(jpg|png|jpeg)$/)){
-            return cb(new Error('Uploaded file is not an image.'))
-        } 
-        cb(undefined,true)
-    }
-})
-
-// uploading profile pic route
-router.post('/users/me/avatar' ,upload.single('avatar'),(req,res) =>{
+//(Private) uploading profile pic route
+router.post('/users/me/avatar', auth , upload.single('avatar'), async (req,res) =>{
+    req.user.avatar = req.file.buffer
+    await req.user.save()
     res.send()
 } ,(error,req,res,next) => {
-    res.status(400).send(error.message)
+    res.status(400).send({error:error.message})
 })
 
 //(Private) logout route
@@ -98,6 +88,17 @@ router.patch('/users/me' ,auth, async (req,res) =>{
         res.send(req.user)
     } catch (error) {
         res.status(404).send(error.message)
+    }
+})
+
+//(Private) deleting my avatar
+router.delete('/users/me/avatar' , auth ,async (req,res) =>{
+    try {
+        req.user.avatar = ""
+        await req.user.save()
+        res.status(200).send()
+    } catch (error) {
+        res.status(400).send(error)
     }
 })
 
