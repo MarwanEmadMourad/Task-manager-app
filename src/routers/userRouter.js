@@ -36,7 +36,7 @@ const upload = multer({
     },
     fileFilter(req,file,cb) {
         if (! file.originalname.match(/\.(jpg|png|jpeg)$/)){
-            return cb(new Error('Uploaded file is not an image'))
+            return cb(new Error('Uploaded file is not an image.'))
         } 
         cb(undefined,true)
     }
@@ -45,6 +45,8 @@ const upload = multer({
 // uploading profile pic route
 router.post('/users/me/avatar' ,upload.single('avatar'),(req,res) =>{
     res.send()
+} ,(error,req,res,next) => {
+    res.status(400).send(error.message)
 })
 
 //(Private) logout route
