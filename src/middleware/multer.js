@@ -3,6 +3,7 @@ const multer = require('multer')
 // multer function that validate file size and type
 const upload = multer({
     limits:{
+        // 1 MB
         fileSize:1000000
     },
     fileFilter(req,file,cb) {

@@ -2,7 +2,7 @@ const express = require('express')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
 const upload = require('../middleware/multer')
-
+const sharp = require('sharp')
 
 const router = new express.Router()
 
@@ -28,15 +28,6 @@ router.post('/users/login' , async (req,res) =>{
     } catch(error){
         res.status(400).send(error.message)
     }
-})
-
-//(Private) uploading profile pic route
-router.post('/users/me/avatar', auth , upload.single('avatar'), async (req,res) =>{
-    req.user.avatar = req.file.buffer
-    await req.user.save()
-    res.send()
-} ,(error,req,res,next) => {
-    res.status(400).send({error:error.message})
 })
 
 //(Private) logout route
@@ -65,7 +56,7 @@ router.post('/users/logout-all' , auth , async (req,res) =>{
 
 //(Private) reading my profile 
 router.get('/users/me', auth , async (req,res) => {
-    res.status(200).send(req.user)
+    res.status(200).send(req.user.getPublicUser())
 })
 
 //(Private) Updating my account's info
@@ -91,14 +82,39 @@ router.patch('/users/me' ,auth, async (req,res) =>{
     }
 })
 
-//(Private) deleting my avatar
+//(Private) uploading profile pic route
+router.post('/users/me/avatar', auth , upload.single('avatar'), async (req,res) =>{
+    const modifiedBuffer = await sharp(req.file.buffer).resize({ width: 250 , height: 250}).png().toBuffer()
+    req.user.avatar = modifiedBuffer
+    await req.user.save()
+    res.send()
+} ,(error,req,res,next) => {
+    res.status(400).send({error:error.message})
+})
+
+//(Private) deleting my avatar's pic
 router.delete('/users/me/avatar' , auth ,async (req,res) =>{
     try {
-        req.user.avatar = ""
+        req.user.avatar = undefined
         await req.user.save()
         res.status(200).send()
     } catch (error) {
         res.status(400).send(error)
+    }
+})
+
+//(Private) fetching my profile pic 
+router.get('/users/:id/avatar', async (req,res) => {
+    try {
+        const user = await User.findById(req.params.id)
+        if (!user || !user.avatar){
+            throw new Error()
+        }
+        // specifying the response data type
+        res.set('Content-Type','image/png')
+        res.send(user.avatar)
+    } catch (error) {
+        res.status(404).send(error.message)
     }
 })
 

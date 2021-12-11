@@ -80,7 +80,10 @@ userSchema.methods.getPublicUser = function () {
     return {
         name : user.name ,
         email: user.email ,
-        age: user.age
+        age: user.age,
+        _id: user._id,
+        createdAt:user.createdAt,
+        updatedAt:user.updatedAt
     }
 }
 
