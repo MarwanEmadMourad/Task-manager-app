@@ -3,6 +3,7 @@ const User = require('../models/user')
 const auth = require('../middleware/auth')
 const upload = require('../middleware/multer')
 const sharp = require('sharp')
+const {sendWelcomeMail} = require('../emails/account')
 
 const router = new express.Router()
 
@@ -12,8 +13,9 @@ router.post('/users' , async (req,res) =>{
     const user = new User(req.body)
     try {
         await user.save()
+        sendWelcomeMail(user.email,user.name)
         const token = await user.generateAuthToken()   
-        res.send( { user: user.getPublicUser() , token} )    
+        res.status(201).send( { user: user.getPublicUser() , token} )    
     } catch(error){
         res.status(400).send(error)
     }
