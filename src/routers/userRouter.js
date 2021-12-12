@@ -7,7 +7,6 @@ const {sendWelcomeMail} = require('../emails/account')
 
 const router = new express.Router()
 
-
 // (Public) creating a new user
 router.post('/users' , async (req,res) =>{
     const user = new User(req.body)

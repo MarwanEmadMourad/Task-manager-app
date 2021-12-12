@@ -3,6 +3,7 @@ const validator = require('validator')
 const bcrypt = require ('bcrypt')
 const jwt = require('jsonwebtoken')
 const Task = require('./task')
+require('dotenv').config()
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -66,7 +67,7 @@ userSchema.virtual('tasks' , {
 // generating an auth token to each individual user
 userSchema.methods.generateAuthToken = async function () {
     const user = this 
-    const token = jwt.sign({ id : user._id.toString() } , "haytherebaby")
+    const token = jwt.sign({ id : user._id.toString() } , process.env.JWT_SECRET)
 
     user.tokens = user.tokens.concat({token})
 
